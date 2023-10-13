@@ -1,0 +1,25 @@
+@import '_variable';
+
+.searchCard{
+  position: relative;
+  top: 64px;
+  left: 0;
+  gap: 38px;
+  margin-bottom: 120px;
+
+  .info{
+    background-color: var(--bg);
+  }
+
+  .moreInfo{
+    gap: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .searchCard{
+    .moreInfo{
+      gap: 17px;
+    }
+  }
+}

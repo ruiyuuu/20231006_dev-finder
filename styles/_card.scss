@@ -1,0 +1,61 @@
+.card{
+  background-color: var(--secondary);
+  border-radius: 24px;
+  padding: 48px;
+  gap: 34px;
+  border: 0;
+  box-shadow: var(--shadow);
+
+  img{
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+  }
+
+  .info{
+    border-radius: 24px;
+    padding: 18px 32px;
+    margin-bottom: 43px;
+  }
+
+  .moreInfo{
+
+    .place{
+      &::before{
+        font-family: 'Bootstrap-icons';
+        content: "\F47E";
+        margin-right: 8px;
+      }
+    }
+
+    .twitter{
+      &::before {
+        font-family: 'Bootstrap-icons';
+          content: "\F8DB";
+          margin-right: 8px;
+        }
+    }
+
+    .github{
+      &::before {
+        font-family: 'Bootstrap-icons';
+          content: "\F3ED";
+          margin-right: 8px;
+        }
+    }
+
+    .company {
+      &::before {
+        font-family: 'Bootstrap-icons';
+        content: "\F87C";
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .card{
+    padding: 32px 24px;
+  }
+}

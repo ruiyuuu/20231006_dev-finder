@@ -1,0 +1,30 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/mixins';
+@import '~bootstrap/scss/bootstrap';
+
+
+@import '_index';
+@import '_variable';
+@import '_input';
+@import '_card';
+@import '_button';
+
+
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: 'Space Mono', monospace;
+  transition: all .5s ease;
+}
+
+html,
+body {
+  background-color: var(--bg);
+  
+}
+
+.container{
+  max-width: 694px;
+}
