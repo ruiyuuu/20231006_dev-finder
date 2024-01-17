@@ -1,64 +1,59 @@
 import Head from 'next/head'
-import { useEffect, useState, useRef } from'react'
+import React,{ useEffect, useState } from'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import axios from 'axios';
+import clsx from 'clsx';
 
+const initialUser = {
+  name:"The Octocat",
+  login:"octocat",
+  blog:"https://github.blog",
+  followers:"10693",
+  repos:"8",
+  following:"9",
+  location:"San Francisco",
+  twitter:null,
+  company:"@github",
+  bio:null,
+  avatar:"https://avatars.githubusercontent.com/u/583231?v=4"
+}
 
+export const metadata = {
+  title:"dev-finder"
+}
 
 export default function Home() {
-
+  
   const [ isChecked, setIsChecked ] = useState("")
-  const [ theme, setTheme] = useState("");
-  const themeRef = useRef(null);
-  const [ themeName, setThemeName ] = useState("");
+  const [ theme, setTheme] = useState(null);
   const [ userName, setUserName ] = useState("");
-  const [ blog, setBlog ] = useState("https://github.blog");
-  const blogRef = useRef(null);
-  const [ followers, setFollowers ] = useState("10693");
-  const [ repos, setRepos ] = useState("8");
-  const [ following, setFollowing ] = useState("9");
-  const [ location, setLocation ] = useState("San Francisco");
-  const locationRef = useRef(null);
-  const [ login, setLogin ] = useState("octocat")
-  const [ twitter, setTwitter ] = useState("Not Available")
-  const twitterRef = useRef(null);
-  const [ company, setCompany ] = useState("@github")
-  const companyRef = useRef(null);
-  const [ bio, setBio ] = useState("Not Available")
-  const bioRef = useRef(null);
-  const [ date, setDate ] = useState("25")
-  const [ month, setMonth ] = useState("Jan")
-  const [ year, setYear ] = useState("2011")
-  const [ avatar, setAvatar ] = useState("https://avatars.githubusercontent.com/u/583231?v=4")
-  const [ name, setName ] = useState("The Octocat")
-  const nameRef = useRef(null);
+  const [userData,setUserData] = useState(initialUser)
+  const [date,setDate] = useState("2011 Jan 25")
   const [ message, setMessage ] = useState("")
-
-
-
-
-  const handleTheme = () => {
-    setIsChecked(!isChecked)
-    localStorage.setItem('isChecked',JSON.stringify(!isChecked))
-  };
-
+  
   useEffect(() => {
-    const isChecked = JSON.parse(localStorage.getItem('isChecked'))
-    if (isChecked === true || isChecked === null) {
+    const isChecked = JSON.parse(localStorage.getItem('isChecked'));
+    setIsChecked(isChecked);
+    
+    if (isChecked === true) {
       setIsChecked(true);
-      setThemeName("LIGHT");
       setTheme("light");
       document.querySelector('body').classList.add("light")
       document.querySelector('body').classList.remove("dark")
-    } else if (isChecked === false) {
+    } else if (isChecked === false || isChecked === null) {
       setIsChecked(false);
-      setThemeName("DARK");
       setTheme("dark");
       document.querySelector("body").classList.add("dark");
       document.querySelector("body").classList.remove("light");
     }
-  });
+  },[isChecked])
+  
+  const handleTheme = () => {
+  setIsChecked(!isChecked)
+  localStorage.setItem('isChecked',JSON.stringify(!isChecked))
+};
+
   
   const handleSearch = (e) => {
       e.preventDefault();
@@ -72,77 +67,31 @@ export default function Home() {
       axios.get(`https://api.github.com/users/${userName}`,{
         username: userName,})
         .then(function (response) {
-          setRepos(response.data.public_repos);
-          setFollowers(response.data.followers);
-          setFollowing(response.data.following);
-          setLogin(response.data.login);
-
-          if (response.data.blog === "") {
-            setBlog("Not Available");
-            blogRef.current.className = "detail github opacity-6 none";
-          } else {
-            setBlog(response.data.blog);
-            blogRef.current.className = "detail github"
-          }
-
-          if (response.data.location === null) {
-            setLocation("Not Available");
-            locationRef.current.className = "detail place opacity-6 none";
-          } else {
-            setLocation(response.data.location);
-            locationRef.current.className = "detail place"
-          }
-
-          if (response.data.twitter_username === null) {
-            setTwitter("Not Available");
-            twitterRef.current.className = "detail twitter opacity-6 none";
-            e.preventDefault()
-          } else {
-            setTwitter(response.data.twitter_username);
-            twitterRef.current.className = "detail twitter"
-          }
-
-          if (response.data.company === null) {
-            setCompany("Not Available");
-            companyRef.current.className = "detail company opacity-6 none"
-          } else {
-            setCompany(response.data.company);
-            companyRef.current.className = "detail company"
-          }
-
-          if (response.data.bio === null) {
-            setBio("Not Available");
-            bioRef.current.className = "text-gray mt-0 mt-md-4 opacity-6"
-          } else {
-            setBio(response.data.bio);
-            bioRef.current.className = "text-gray mt-0 mt-md-4"
-          }
-
-          if (response.data.name === null) {
-            setName("Not Available");
-            nameRef.current.className = "name text-gray opacity-6"
-          } else {
-            setName(response.data.name);
-            nameRef.current.className = "name text-gray"
-          }
-
-          setAvatar(response.data.avatar_url);
-
-          if (response.data.created_at !== undefined) {
-            const date = new Date(response.data.created_at);
-            setDate(date.getDate());
-            setMonth(date.toLocaleString("en", { month: "short" }));
-            setYear(date.getFullYear());
-          }
+          setUserData({
+            ...initialUser,
+            name:response.data.name,
+            login:response.data.login,
+            repos:response.data.public_repos,
+            followers:response.data.followers,
+            following:response.data.following,
+            blog:response.data.blog,
+            location:response.data.location,
+            twitter:response.data.twitter_username,
+            company:response.data.company,
+            bio:response.data.bio,
+            avatar:response.data.avatar_url,
+          });
+          const date = new Date(response.data.created_at);
+          setDate(`${date.getFullYear()} ${date.toLocaleString("en", { month: "short" })} ${date.getDate()}` )
+        }
+        ).catch((error) => {
+          console.log(error);
         })
-  };
+      }
 
 
   return (
     <>
-      <Head>
-        <title>dev-finder</title>
-      </Head>
       <main>
         <div className="container">
           <div className="d-flex flex-column searchCard">
@@ -153,7 +102,7 @@ export default function Home() {
                   className="form-check-label text-gray"
                   htmlFor="flexSwitchCheckDefault"
                 >
-                  {themeName}
+                  {theme}
                 </label>
                 <input
                   className="form-check-input"
@@ -161,7 +110,7 @@ export default function Home() {
                   role="switch"
                   id="flexSwitchCheckDefault"
                   onChange={handleTheme}
-                  checked={isChecked}
+                  checked={isChecked?true:false}
                 />
               </div>
             </div>
@@ -203,7 +152,7 @@ export default function Home() {
               <div className="d-flex flex-column flex-md-row card">
                 <div className="d-flex gap-4 flex-md-column">
                   <Image
-                    src={avatar}
+                    src={userData.avatar}
                     alt="user"
                     unoptimized
                     width={70}
@@ -211,74 +160,70 @@ export default function Home() {
                   />
                   <div className="d-md-none d-flex flex-column justify-content-between">
                     <div className="d-flex flex-column">
-                      <h1 className="name text-gray" ref={nameRef}>
-                        {name}
+                      <h1 className="name text-gray">
+                        {userData.name?userData.name:"Not Available"}
                       </h1>
                       <p className="id text-primary" href="#">
-                        @{login}
+                        @{userData.login}
                       </p>
                     </div>
                     <h3 className="join text-gray">
-                      Joined {date} {month} {year}
+                      Joined {date}
                     </h3>
                   </div>
                 </div>
                 <div className="d-flex flex-column w-100">
                   <div className="d-md-flex d-none flex-row justify-content-between">
                     <div className="d-flex flex-column">
-                      <h1 className="name text-gray" ref={nameRef}>
-                        {name}
+                      <h1 className={clsx("name text-gray",{"opacity-6":userData.name===null})}>
+                        {userData.name?userData.name:"NaN"}
                       </h1>
                       <p className="id text-primary" href="#">
-                        @{login}
+                        @{userData.login}
                       </p>
                     </div>
                     <h3 className="join text-gray">
-                      Joined {date} {month} {year}
+                      Joined {date}
                     </h3>
                   </div>
-                  <p className="text-gray mt-0 mt-md-4 opacity-6" ref={bioRef}>
-                    {bio}
+                  <p className={clsx("text-gray mt-0 mt-md-4",{"opacity-6":userData.bio===null})}>
+                    {userData.bio?userData.bio:"Not Available"}
                   </p>
 
                   <div className="d-flex info justify-content-between">
                     <div className="d-flex flex-column align-items-center align-items-md-start gap-md-2 gap-3">
                       <small className="text-gray opacity-6">Repos</small>
-                      <p className="times text-gray mb-0">{repos}</p>
+                      <p className="times text-gray mb-0">{userData.repos}</p>
                     </div>
                     <div className="d-flex flex-column align-items-center align-items-md-start gap-md-2 gap-3">
                       <small className="text-gray opacity-6">Followers</small>
-                      <p className="times text-gray mb-0">{followers}</p>
+                      <p className="times text-gray mb-0">{userData.followers}</p>
                     </div>
                     <div className="d-flex flex-column align-items-center align-items-md-start gap-md-2 gap-3">
                       <small className="text-gray opacity-6">Following</small>
-                      <p className="times text-gray mb-0">{following}</p>
+                      <p className="times text-gray mb-0">{userData.following}</p>
                     </div>
                   </div>
 
                   <div className="d-flex flex-column moreInfo">
                     <div className="d-flex flex-column flex-md-row w-100 gap-md-4 gap-3">
                       <a
-                        className="detail place none"
-                        href=""
-                        ref={locationRef}
-                      >
-                        {location}
+                        className={clsx("detail place",{"opacity-6 none":userData.location===null})}
+                        href="">
+                        {userData.location?userData.location:"Not Available"}
                       </a>
                       <a
-                        className="detail twitter opacity-6 none"
-                        href=""
-                        ref={twitterRef}
-                      >
-                        {twitter}
+                        className={clsx("detail twitter",{"opacity-6 none":userData.twitter===null,"":userData.twitter!==null})}
+                        href="">
+                        {userData.twitter?userData.twitter:"Not Available"}
                       </a>
                     </div>
                     <div className="d-flex flex-column flex-md-row w-100 gap-md-4 gap-3">
-                      <a className="detail github" href={blog} ref={blogRef}>
-                        {blog}
+                      <a className={clsx("detail github",{"opacity-6 none":userData.blog === "","":userData.blog !== ""})} href={userData.blog}>
+                        {userData.blog?userData.blog:"Not Available"}
                       </a>
-                      <a className="detail company" href="" ref={companyRef}>
-                        {company}
+                      <a className={clsx("detail company",{"opacity-6 none":userData.company === null,"e":userData.company !== null})} href="">
+                        {userData.company?userData.company:"Not Available"}
                       </a>
                     </div>
                   </div>
